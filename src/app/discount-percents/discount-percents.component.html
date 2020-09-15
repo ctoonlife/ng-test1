@@ -1,0 +1,18 @@
+<mat-card class="card">
+  <h4>Discounts</h4>
+  <ng-container *ngIf="!(isLoading$ | async); else isLoading">
+    <mat-slider class="slider" min="0" max="100" step="1" thumbLabel [value]="discount$ | async"
+      (input)="changeDiscount($event)">
+    </mat-slider>
+    <mat-slider class="slider" min="0" max="100" step="0.1" thumbLabel [displayWith]="formatCashbackLabel"
+      [value]="cashback$ | async" (input)="changeCashback($event)">
+    </mat-slider>
+    <div>Discount: {{ discount$ | async }}</div>
+    <div>Cashback: {{ cashback$ | async | number:'1.1-1' }} ({{ cashback$ | async }})</div>
+    <div>Discount range: {{ minDiscount$ | async }} - {{ maxDiscount$ | async }}</div>
+    <div>Cashback range: {{ minCashback }} - {{ maxCashback$ | async | number:'1.1-1' }}</div>
+  </ng-container>
+  <ng-template #isLoading>
+    <div class="loader">Loading...</div>
+  </ng-template>
+</mat-card>
