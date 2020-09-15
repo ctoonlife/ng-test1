@@ -98,11 +98,15 @@ export class DiscountPercentsState {
   @Action(ChangeDiscount)
   public changeDiscount(ctx: StateContext<DiscountPercentsStateModel>, { discount }: ChangeDiscount) {
     // TODO: implement code
+
+    ctx.patchState({discount: discount});
   }
 
   @Action(ChangeCashback)
   public changeCashback(ctx: StateContext<DiscountPercentsStateModel>, { cashback }: ChangeCashback) {
     // TODO: implement code
+
+    ctx.patchState({cashback: cashback});
   }
 
   private toggleLoadingState(ctx: StateContext<DiscountPercentsStateModel>, name: string, value: boolean): void {
