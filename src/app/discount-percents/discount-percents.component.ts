@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { MatSliderChange } from '@angular/material/slider';
 import { Select, Store } from '@ngxs/store';
-import { Observable } from 'rxjs';
+import { combineLatest, Observable } from 'rxjs';
+import { first } from 'rxjs/operators';
 
 import {
   LoadPercents,
@@ -53,9 +54,13 @@ export class DiscountPercentsComponent implements OnInit {
     this.store.dispatch([new LoadPercents(), new LoadOrgData()]);
     this.isLoading$.subscribe(isLoading => {
       if(!isLoading) {
-        this.minDiscount = this.store.selectSnapshot<number>(state => state.discountPercents.org.minDiscount);
-        this.maxDiscount = this.store.selectSnapshot<number>(state => state.discountPercents.maxDiscount);
-        this.maxCashback = this.store.selectSnapshot<number>(state => state.discountPercents.maxCashback);
+        combineLatest([this.minDiscount$, this.maxDiscount$, this.maxCashback$]).
+        pipe(first()).
+        subscribe(([minDiscount, maxDiscount, maxCashback]) => {
+          this.minDiscount = minDiscount;
+          this.maxDiscount = maxDiscount;
+          this.maxCashback = maxCashback;
+        });
       }
     });
   }

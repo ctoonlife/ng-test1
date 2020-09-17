@@ -99,24 +99,22 @@ export class DiscountPercentsState {
   public changeDiscount(ctx: StateContext<DiscountPercentsStateModel>, { discount }: ChangeDiscount) {
     // TODO: implement code
 
-    this.dataService.CashbackPercent.subscribe(
-      percents => {
-        const cashback = this.defineCashbackForDiscount(percents, discount);
-        ctx.patchState({ discount: discount, cashback: cashback });
-      }
-    );
+    ctx.patchState({ discount: discount });
+    const cashback = this.defineCashbackForDiscount(ctx.getState().percents, discount);
+    if (ctx.getState().cashback > cashback) {
+      ctx.patchState({ cashback: cashback });
+    }
   }
 
   @Action(ChangeCashback)
   public changeCashback(ctx: StateContext<DiscountPercentsStateModel>, { cashback }: ChangeCashback) {
     // TODO: implement code
 
-    this.dataService.CashbackPercent.subscribe(
-      percents => {
-        const discount = this.defineDiscountForCashback(percents, cashback);
-        ctx.patchState({ cashback: cashback, discount: discount });
-      }
-    );
+    ctx.patchState({ cashback: cashback });
+    const discount = this.defineDiscountForCashback(ctx.getState().percents, cashback);
+    if (ctx.getState().discount < discount) {
+      ctx.patchState({ discount: discount });
+    }
   }
 
   private toggleLoadingState(ctx: StateContext<DiscountPercentsStateModel>, name: string, value: boolean): void {
