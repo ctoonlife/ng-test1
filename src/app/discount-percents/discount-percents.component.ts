@@ -64,28 +64,45 @@ export class DiscountPercentsComponent implements OnInit {
     // TODO: implement code
 
     if (event.value < this.minDiscount) {
-      event.source.value = this.minDiscount
-    }
+      event.source.value = this.minDiscount;
 
-    if (event.value > this.maxDiscount) {
-      event.source.value = this.maxDiscount
-    }
+      // пересчитать, если минимальное значение достигнуто, но состояние не обновлялось
+      if (this.store.selectSnapshot<number>(state => state.discountPercents.discount) > event.source.value) {
+        this.store.dispatch([new ChangeDiscount(event.source.value)]);
+      }
+    } else if (event.value > this.maxDiscount) {
+      event.source.value = this.maxDiscount;
 
-    this.store.dispatch([new ChangeDiscount(event.source.value)]);
+      // пересчитать, если максимальное значение достигнуто, но состояние не обновлялось
+      if (this.store.selectSnapshot<number>(state => state.discountPercents.discount) < event.source.value) {
+        this.store.dispatch([new ChangeDiscount(event.source.value)]);
+      }
+    } else {
+      this.store.dispatch([new ChangeDiscount(event.source.value)]);
+    }
+    
   }
 
   changeCashback(event: MatSliderChange): void {
     // TODO: implement code
 
     if (event.value < this.minCashback) {
-      event.source.value = this.minCashback
-    }
+      event.source.value = this.minCashback;
 
-    if (event.value > this.maxCashback) {
-      event.source.value = this.maxCashback
-    }
+      // пересчитать, если минимальное значение достигнуто, но состояние не обновлялось
+      if (this.store.selectSnapshot<number>(state => state.discountPercents.cashback) > event.source.value) {
+        this.store.dispatch([new ChangeCashback(event.source.value)]);
+      }
+    } else if (event.value > this.maxCashback) {
+      event.source.value = this.maxCashback;
 
-    this.store.dispatch([new ChangeCashback(event.source.value)]);
+      // пересчитать, если максимальное значение достигнуто, но состояние не обновлялось
+      if (this.store.selectSnapshot<number>(state => state.discountPercents.cashback) < event.source.value) {
+        this.store.dispatch([new ChangeCashback(event.source.value)]);
+      }
+    } else {
+      this.store.dispatch([new ChangeCashback(event.source.value)]);
+    }
   }
 
   formatCashbackLabel(value: number) {

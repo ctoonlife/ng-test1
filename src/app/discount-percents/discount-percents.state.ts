@@ -99,19 +99,57 @@ export class DiscountPercentsState {
   public changeDiscount(ctx: StateContext<DiscountPercentsStateModel>, { discount }: ChangeDiscount) {
     // TODO: implement code
 
-    ctx.patchState({discount: discount});
+    this.dataService.CashbackPercent.subscribe(
+      percents => {
+        const cashback = this.defineCashbackForDiscount(percents, discount);
+        ctx.patchState({ discount: discount, cashback: cashback });
+      }
+    );
   }
 
   @Action(ChangeCashback)
   public changeCashback(ctx: StateContext<DiscountPercentsStateModel>, { cashback }: ChangeCashback) {
     // TODO: implement code
 
-    ctx.patchState({cashback: cashback});
+    this.dataService.CashbackPercent.subscribe(
+      percents => {
+        const discount = this.defineDiscountForCashback(percents, cashback);
+        ctx.patchState({ cashback: cashback, discount: discount });
+      }
+    );
   }
 
   private toggleLoadingState(ctx: StateContext<DiscountPercentsStateModel>, name: string, value: boolean): void {
     const loadingStates = { ...ctx.getState().loadingStates, [name]: value };
     const isLoading = Object.values(loadingStates).reduce((sum, next) => sum || next);
     ctx.patchState({ loadingStates, isLoading });
+  }
+
+  private formatSum(sum: number) {
+    return Number(sum.toFixed(1));
+  }
+
+  private defineDiscountForCashback(percents: CashbackPercent[], cashback: number) {
+    const minDiscount = percents[0].discount;
+    let discount = minDiscount;
+
+    for (let i = 0; i < percents.length - 1; i++) {
+      if (cashback > percents[i].cashback && cashback < percents[i + 1].cashback) {
+        discount = percents[i + 1].discount;
+      }
+    }
+
+    return discount;
+  }
+
+  private defineCashbackForDiscount(percents: CashbackPercent[], discount: number) {
+    const max = percents[percents.length - 1];
+    const min = percents[0];
+    const percent = percents.find(x => this.formatSum(x.discount) == this.formatSum(discount));
+    const cashback = percent ? 
+      this.formatSum(percent.cashback) > this.formatSum(max.cashback) ? max.cashback : percent.cashback :
+      min.cashback;
+
+    return cashback;
   }
 }
