@@ -1,11 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { MatSliderChange } from '@angular/material/slider';
 import { Select, Store } from '@ngxs/store';
-import { Observable } from 'rxjs';
+import { combineLatest, Observable } from 'rxjs';
+import { first } from 'rxjs/operators';
 
 import {
   LoadPercents,
-  LoadOrgData
+  LoadOrgData,
+  ChangeDiscount,
+  ChangeCashback
 } from './discount-percents.actions';
 import { DiscountPercentsState } from './discount-percents.state';
 import { CashbackPercent } from './models';
@@ -48,11 +51,37 @@ export class DiscountPercentsComponent implements OnInit {
   }
 
   changeDiscount(event: MatSliderChange): void {
-    // TODO: implement code
+    combineLatest([this.minDiscount$, this.maxDiscount$, this.discount$]).pipe(first()).subscribe(([min, max, current]) => {
+      let result: number;
+      if (event.value < min) {
+        result = min;
+      } else if (event.value > max) {
+        result = max;
+      } else {
+        result = event.value;
+      }
+      event.source.value = result;
+      if (result !== current) {
+        this.store.dispatch(new ChangeDiscount(result));
+      }
+    });
   }
 
   changeCashback(event: MatSliderChange): void {
-    // TODO: implement code
+    combineLatest([this.maxCashback$, this.cashback$]).pipe(first()).subscribe(([max, current]) => {
+      let result: number;
+      if (event.value < this.minCashback) {
+        result = this.minCashback;
+      } else if (event.value > max) {
+        result = max;
+      } else {
+        result = event.value;
+      }
+      event.source.value = result;
+      if (result !== current) {
+        this.store.dispatch(new ChangeCashback(result));
+      }
+    });
   }
 
   formatCashbackLabel(value: number) {

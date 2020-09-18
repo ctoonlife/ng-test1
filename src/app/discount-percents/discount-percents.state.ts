@@ -97,12 +97,20 @@ export class DiscountPercentsState {
 
   @Action(ChangeDiscount)
   public changeDiscount(ctx: StateContext<DiscountPercentsStateModel>, { discount }: ChangeDiscount) {
-    // TODO: implement code
+    const state = ctx.getState();
+    const max = state.percents.find(v => v.discount === discount).cashback;
+    const cashback = state.cashback > max ? max : state.cashback;
+    ctx.patchState({ discount, cashback });
   }
 
   @Action(ChangeCashback)
   public changeCashback(ctx: StateContext<DiscountPercentsStateModel>, { cashback }: ChangeCashback) {
-    // TODO: implement code
+    const state = ctx.getState();
+    let discount = state.discount;
+    if (state.percents.find(v => v.discount === state.discount).cashback < cashback) {
+      discount = state.percents.find((v) => v.cashback >= cashback).discount;
+    }
+    ctx.patchState({ cashback, discount });
   }
 
   private toggleLoadingState(ctx: StateContext<DiscountPercentsStateModel>, name: string, value: boolean): void {
